@@ -1,0 +1,5 @@
+class ArrayTests {
+    fun fromCollection() {
+
+    }
+}
