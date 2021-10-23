@@ -26,15 +26,15 @@ fun parallelVersusSequential(size: Int, max: Int) {
         .map {
             val init = generate(size, max)
             val seq = bench(init) { sequentialSort(0, size) }
-            println(seq)
+            println("seq #$it: ${seq}ms")
             System.gc()
-            val par = bench(init) { runBlocking { parallelSort(100_000) } }
-            println(par)
+            val par = bench(init) { runBlocking { parallelSort() } }
+            println("par #$it: ${par}ms")
             System.gc()
             seq to par
         }
         .let { pairs -> pairs.map { it.first }.average() to pairs.map { it.second }.average() }
-    println("Sequential: ${seq}ms\nParallel: ${par}ms\n")
+    println("Sequential:\t${seq}ms\nParallel:\t${par}ms\nRate:\t${seq / par}")
 }
 
 fun generate(size: Int, max: Int) = IntArray(size) { Random.nextInt(max) }

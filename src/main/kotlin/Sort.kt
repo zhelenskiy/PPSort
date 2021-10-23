@@ -26,21 +26,21 @@ fun main() {
             (1..10).shuffled().toParallelArray()
         }
         println(array.apply { sequentialSort(0, size) })
-        println(array.apply { runBlocking { parallelSort(1) } })
-        println(array.apply { runBlocking { parallelSort(100) } })
+        println(array.apply { runBlocking { parallelSort() } })
+        println(array.apply { runBlocking { parallelSort() } })
         println()
     }
 }
 
-suspend fun ParallelIntArray.parallelSort(threshold: Int = 1000) {
-    if (size < threshold) return sequentialSort(0, size)
+suspend fun ParallelIntArray.parallelSort() {
+    if (size < Config.psortChunk) return sequentialSort(0, size)
     val pivot = get((0 until size).random())
     val (left, middle, right) = fork2join(
         { pfilter { it < pivot } },
         { pfilter { it == pivot } },
         { pfilter { it > pivot } },
     )
-    fork2join({ left.parallelSort(threshold) }, { right.parallelSort(threshold) })
+    fork2join({ left.parallelSort() }, { right.parallelSort() })
     val offset1 = left.size
     val offset2 = offset1 + middle.size
     fork2join(
