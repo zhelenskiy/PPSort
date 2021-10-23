@@ -36,9 +36,9 @@ suspend fun ParallelIntArray.parallelSort(threshold: Int = 1000) {
     if (size < threshold) return sequentialSort(0, size)
     val pivot = get((0 until size).random())
     val (left, middle, right) = fork2join(
-        { pfilter(threshold) { it < pivot } },
-        { pfilter(threshold) { it == pivot } },
-        { pfilter(threshold) { it > pivot } },
+        { pfilter { it < pivot } },
+        { pfilter { it == pivot } },
+        { pfilter { it > pivot } },
     )
     fork2join({ left.parallelSort(threshold) }, { right.parallelSort(threshold) })
     val offset1 = left.size

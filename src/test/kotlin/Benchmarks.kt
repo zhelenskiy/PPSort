@@ -27,8 +27,10 @@ fun parallelVersusSequential(size: Int, max: Int) {
             val init = generate(size, max)
             val seq = bench(init) { sequentialSort(0, size) }
             println(seq)
+            System.gc()
             val par = bench(init) { runBlocking { parallelSort(100_000) } }
             println(par)
+            System.gc()
             seq to par
         }
         .let { pairs -> pairs.map { it.first }.average() to pairs.map { it.second }.average() }
@@ -40,7 +42,7 @@ fun generate(size: Int, max: Int) = IntArray(size) { Random.nextInt(max) }
 @ExperimentalTime
 class Benchmarks {
     @Test
-    fun `different`() {
-        parallelVersusSequential(10_000_000, 10000)
+    fun different() {
+        parallelVersusSequential(10_000_000, 100000)
     }
 }

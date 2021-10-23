@@ -24,12 +24,12 @@ class ParallelIntArray(val size: Int) : Closeable {
 
     companion object {
         private const val sizeBytes = Int.SIZE_BYTES
-        suspend fun List<Int>.toParallelArray(chunk: Int = 1000) = ParallelIntArray(size).apply {
-            setEach(chunk) { this@toParallelArray[it] }
+        suspend fun List<Int>.toParallelArray() = ParallelIntArray(size).apply {
+            setEach { this@toParallelArray[it] }
         }
     }
 
-    suspend inline fun setEach(chunk: Int = 1000, crossinline generator: (Int) -> Int) {
+    suspend inline fun setEach(crossinline generator: (Int) -> Int) {
         (0 until size).pfor { this@ParallelIntArray[it] = generator(it) }
     }
 
@@ -55,7 +55,7 @@ class ParallelIntArray(val size: Int) : Closeable {
 object Config {
     const val pforChunk = 100_000
     const val psumsChunk = 2_000
-    const val pfilterChunk = 10_000
+    const val pfilterChunk = 10
     const val psortChunk = 100_000
 }
 
@@ -76,8 +76,8 @@ suspend inline fun <T> fork2join(vararg fs: suspend () -> T) = coroutineScope {
     fs.map { f -> async(Dispatchers.Default) { f() } }.awaitAll()
 }
 
-suspend fun ParallelIntArray.psums(chunk: Int = 1000) {
-    if (size < chunk || size == 0) {
+suspend fun ParallelIntArray.psums() {
+    if (size < Config.psumsChunk || size == 0) {
         return serialSums()
     }
     val n = run {
@@ -88,7 +88,7 @@ suspend fun ParallelIntArray.psums(chunk: Int = 1000) {
         n
     }
     val fastArray = ParallelIntArray(n).apply {
-        setEach(chunk) { if (it < this@psums.size) this@psums[it] else 0 }
+        setEach { if (it < this@psums.size) this@psums[it] else 0 }
     }
     with(fastArray) {
         var step = 2
@@ -117,8 +117,8 @@ suspend fun ParallelIntArray.psums(chunk: Int = 1000) {
 
 fun main() {
     runBlocking {
-        println(List(9) { it + 1 }.toParallelArray(1).apply { psums(1) })
-        println(List(9) { it + 1 }.toParallelArray(1).let { it.pfilter { it % 2 > 0 } })
+        println(List(9) { it + 1 }.toParallelArray().apply { psums() })
+        println(List(9) { it + 1 }.toParallelArray().let { it.pfilter { it % 2 > 0 } })
     }
 }
 
@@ -130,14 +130,13 @@ fun ParallelIntArray.serialSums() {
 }
 
 suspend inline fun ParallelIntArray.pfilter(
-    chunk: Int = 1000,
     crossinline predicate: (Int) -> Boolean
 ): ParallelIntArray {
-    if (size == 0) return ParallelIntArray(0)
+    if (size < Config.pfilterChunk) return asList().filter(predicate).toParallelArray()
     val offsets = ParallelIntArray(size + 1)
     (0 until size).pfor { offsets[it] = if (predicate(this[it])) 1 else 0 }
     offsets[size] = 0
-    offsets.psums(chunk)
+    offsets.psums()
     val res = ParallelIntArray(offsets[offsets.size - 1])
     (0 until size).pfor { if (offsets[it + 1] - offsets[it] == 1) res[offsets[it]] = this[it] }
     offsets.close()

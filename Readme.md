@@ -1,20 +1,20 @@
 My output is:
 ```haskell
-19350.959004
-7929.802202
-14546.231487
-7129.792223
-15250.249523
-7016.141425
-16484.882814
-7043.550186
-19471.023382
-10441.26443
-Sequential: 17020.669242ms
-Parallel: 7912.1100932ms
+22928.870606
+7549.984665
+15261.290641
+7282.011301
+16216.250777
+7641.290512
+16907.313123
+7146.891537
+16760.188093
+8617.913386
+Sequential: 17614.782648ms
+Parallel: 7647.618280199999ms
 ```
 Every even row is temporary parallel result time.
 
 Every odd one is for sequential one.
 
-![Screen](Screen.bmp "Illustration")
+![Screen](img.png "Illustration")
