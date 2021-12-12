@@ -1,6 +1,5 @@
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertIterableEquals
-import org.junit.jupiter.api.Test
 import sort.parallelSort
 import sort.sequentialSort
 import utils.ParallelIntArray
@@ -43,9 +42,6 @@ fun parallelVersusSequential(size: Int, max: Int) {
 fun generate(size: Int, max: Int) = IntArray(size) { Random.nextInt(max) }
 
 @ExperimentalTime
-class Benchmarks {
-    @Test
-    fun different() {
-        parallelVersusSequential(10_000_000, 100000)
-    }
+fun main() {
+    parallelVersusSequential(50_000_000, 10_000_000)
 }

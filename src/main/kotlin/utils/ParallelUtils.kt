@@ -81,15 +81,17 @@ fun ParallelIntArray.serialSums() {
 }
 
 suspend inline fun ParallelIntArray.pfilter(
-    crossinline predicate: (Int) -> Boolean
+    l: Int = 0,
+    r: Int = size,
+    crossinline predicate: (Int) -> Boolean,
 ): ParallelIntArray {
-    if (size < Config.pfilterChunk) return asList().filter(predicate).toParallelArray()
-    val offsets = ParallelIntArray(size + 1)
-    (0 until size).pfor { offsets[it] = if (predicate(this[it])) 1 else 0 }
-    offsets[size] = 0
+    if (r - l < Config.pfilterChunk) return asList().subList(l, r).filter(predicate).toParallelArray()
+    val offsets = ParallelIntArray(r - l + 1)
+    (0 until r - l).pfor { offsets[it] = if (predicate(this[l + it])) 1 else 0 }
+    offsets[r - l] = 0
     offsets.psums()
     val res = ParallelIntArray(offsets[offsets.size - 1])
-    (0 until size).pfor { if (offsets[it + 1] - offsets[it] == 1) res[offsets[it]] = this[it] }
+    (0 until r - l).pfor { if (offsets[it + 1] - offsets[it] == 1) res[offsets[it]] = this[l + it] }
     offsets.close()
     return res
 }

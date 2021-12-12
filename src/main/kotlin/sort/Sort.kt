@@ -39,23 +39,23 @@ fun main() {
     }
 }
 
-suspend fun ParallelIntArray.parallelSort() {
-    if (size < utils.Config.psortChunk) return sequentialSort(0, size)
-    val pivot = get((0 until size).random())
+suspend fun ParallelIntArray.parallelSort(l: Int = 0, r: Int = size) {
+    if (r - l < Config.psortChunk) return sequentialSort(l, r)
+    val pivot = get((l until r).random())
     val (left, middle, right) = fork2join(
-        { pfilter { it < pivot } },
-        { pfilter { it == pivot } },
-        { pfilter { it > pivot } },
+        { pfilter(l, r) { it < pivot } },
+        { pfilter(l, r) { it == pivot } },
+        { pfilter(l, r) { it > pivot } },
     )
-    fork2join({ left.parallelSort() }, { right.parallelSort() })
     val offset1 = left.size
     val offset2 = offset1 + middle.size
     fork2join(
-        { (0 until left.size).pfor { this[it] = left[it] } },
-        { (0 until middle.size).pfor { this[offset1 + it] = middle[it] } },
-        { (0 until right.size).pfor { this[offset2 + it] = right[it] } },
+        { (0 until left.size).pfor { this[l + it] = left[it] } },
+        { (0 until middle.size).pfor { this[l + offset1 + it] = middle[it] } },
+        { (0 until right.size).pfor { this[l + offset2 + it] = right[it] } },
     )
     left.close()
     right.close()
     middle.close()
+    fork2join({ parallelSort(l, l + offset1) }, { parallelSort(l + offset2, r) })
 }

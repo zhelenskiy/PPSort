@@ -1,18 +1,18 @@
 My sort output is:
 ```yaml
-seq #1: 7976.546952ms
-par #1: 3365.233949ms
-seq #2: 6960.409535ms
-par #2: 2258.986379ms
-seq #3: 6995.114482ms
-par #3: 2146.6867ms
-seq #4: 7502.800646ms
-par #4: 2371.490485ms
-seq #5: 6853.170777ms
-par #5: 2212.269081ms
-Sequential:	7257.6084784ms
-Parallel:	2470.9333188ms
-Rate:	2.937193174409349
+seq #1: 52347.335353ms
+par #1: 16662.998798ms
+seq #2: 50442.947059ms
+par #2: 15235.085273ms
+seq #3: 54896.307276ms
+par #3: 14930.354696ms
+seq #4: 46743.352704ms
+par #4: 17166.486762ms
+seq #5: 51088.333968ms
+par #5: 14947.330394ms
+Sequential:	51103.655271999996ms
+Parallel:	15788.4511846ms
+Rate:	3.236774441931728
 ```
 Every even row is temporary parallel or sequential result time.
 
