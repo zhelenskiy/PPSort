@@ -1,5 +1,12 @@
-import ParallelIntArray.Companion.toParallelArray
+package sort
+
+import utils.Config
+import utils.ParallelIntArray
+import utils.ParallelIntArray.Companion.toParallelArray
+import utils.fork2join
 import kotlinx.coroutines.runBlocking
+import utils.pfilter
+import utils.pfor
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -33,7 +40,7 @@ fun main() {
 }
 
 suspend fun ParallelIntArray.parallelSort() {
-    if (size < Config.psortChunk) return sequentialSort(0, size)
+    if (size < utils.Config.psortChunk) return sequentialSort(0, size)
     val pivot = get((0 until size).random())
     val (left, middle, right) = fork2join(
         { pfilter { it < pivot } },

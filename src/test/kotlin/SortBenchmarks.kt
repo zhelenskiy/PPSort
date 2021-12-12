@@ -1,7 +1,10 @@
-import ParallelIntArray.Companion.toParallelArray
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertIterableEquals
 import org.junit.jupiter.api.Test
+import sort.parallelSort
+import sort.sequentialSort
+import utils.ParallelIntArray
+import utils.ParallelIntArray.Companion.toParallelArray
 import kotlin.random.Random
 import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
